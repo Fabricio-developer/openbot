@@ -92,6 +92,8 @@ interface TasksPageProps {
   waitOf?: ((task: AgentTask) => AgentTaskWait) | undefined;
   sendShortcut?: SendShortcut | undefined;
   macWindowControls?: boolean | undefined;
+  /** Plane, Notion and calendar section (custom fork). */
+  work?: JSX.Element | undefined;
 }
 
 function TasksComposer(props: TasksPageProps) {
@@ -522,6 +524,7 @@ export function TasksPage(props: TasksPageProps) {
           <div class="tasks-page-took-slot" aria-live="polite">
             <Show when={props.took}>{(took) => <TaskTookLine {...props} took={took()} />}</Show>
           </div>
+          {props.work}
           <TasksList {...props} />
           <Show when={empty()}>
             <TasksEmptyBoard agents={props.agents} />

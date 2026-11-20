@@ -1063,6 +1063,10 @@ export class WorkIntegrationsService {
     return event;
   }
 
+  openUrl(url: string): void {
+    this.#openExternal(url);
+  }
+
   async dispose(): Promise<void> {
     this.#googleServer?.close();
     this.#googleServer = null;

@@ -11,6 +11,7 @@ import {
   DropdownMenu,
   Ellipsis,
   GalleryVerticalEnd,
+  LayoutDashboard,
   ListChecks,
   MotionTooltip,
   Pin,
@@ -366,6 +367,7 @@ function MediaCreditsButton(props: { row: MediaCreditsRailRow; onOpen: (button: 
 
 export type PageRailPage =
   | "agents"
+  | "dashboard"
   | "routines"
   | "workflows"
   | "tasks"
@@ -378,6 +380,7 @@ export type PageRailPage =
   | "settings";
 
 export const PAGE_RAIL_PINNABLE_PAGES = [
+  "dashboard",
   "routines",
   "workflows",
   "tasks",
@@ -399,6 +402,7 @@ export interface PageRailProps {
   mediaCredits?: readonly MediaCreditsRailRow[] | undefined;
   onMediaCredits?: ((provider: MediaCreditsRailRow["provider"]) => void) | undefined;
   onAgents: () => void;
+  onDashboard?: ((button: HTMLElement) => void) | undefined;
   onRoutines?: (() => void) | undefined;
   onWorkflows?: (() => void) | undefined;
   onPreloadWorkflows?: (() => void) | undefined;
@@ -566,7 +570,10 @@ export function PageRail(props: PageRailProps) {
   });
   const pages = createMemo((): RailPage[] => {
     const list: RailPage[] = [];
-    const { onRoutines, onWorkflows, onTasks, onSchedule } = props;
+    const { onRoutines, onWorkflows, onTasks, onSchedule, onDashboard } = props;
+    if (onDashboard) {
+      list.push({ id: "dashboard", label: "Dashboard", icon: LayoutDashboard, open: onDashboard });
+    }
     if (onRoutines) {
       list.push({
         id: "routines",

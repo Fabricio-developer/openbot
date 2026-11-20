@@ -6,7 +6,7 @@ import { desktopCrmHost } from "../crm/crm-port";
 import { serverCanAdminister } from "../servers/server-capabilities";
 import { useServers } from "../servers/servers-context";
 
-type HostPaneView = "usage" | "schedule" | "tasks" | "workflows" | "library" | "crm";
+type HostPaneView = "usage" | "schedule" | "tasks" | "workflows" | "library" | "crm" | "dashboard";
 
 const context = createSimpleContext({
   name: "UsageProvider",
@@ -56,6 +56,10 @@ const context = createSimpleContext({
       open("tasks", serverId, source);
     }
 
+    function openDashboard(serverId: string, source: HTMLElement | null) {
+      open("dashboard", serverId, source);
+    }
+
     function openWorkflows(serverId: string, source: HTMLElement | null, workflowId?: string) {
       setWorkflowRequest(workflowId === undefined ? undefined : { serverId, workflowId });
       open("workflows", serverId, source);
@@ -95,6 +99,7 @@ const context = createSimpleContext({
       openUsage,
       openSchedule,
       openTasks,
+      openDashboard,
       openWorkflows,
       workflowRequest,
       takeWorkflowRequest: () => setWorkflowRequest(undefined),

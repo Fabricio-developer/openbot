@@ -45,6 +45,7 @@ function shouldAutoCompactSidebar(
 }
 
 const RAIL_PINNED_BY_DEFAULT: ReadonlySet<PageRailPinnablePage> = new Set([
+  "dashboard",
   "tasks",
   "workflows",
   "usage",

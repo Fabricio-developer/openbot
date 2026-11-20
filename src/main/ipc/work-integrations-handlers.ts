@@ -31,6 +31,12 @@ function decodeCreateEvent(value: unknown): WorkCreateEventInput {
   };
 }
 
+function decodeHttpsUrl(value: unknown): string {
+  const url = new URL(requireString(value, "url", 4096));
+  if (url.protocol !== "https:") throw new Error("Only https links open from work integrations.");
+  return url.toString();
+}
+
 function decodeSource(value: unknown): WorkDisconnectInput {
   if (value === "plane" || value === "notion" || value === "google") return value;
   throw new Error("Invalid integration.");
@@ -50,6 +56,7 @@ export function workIntegrationsIpcHandlers({
       connectGoogle: handler(() => workIntegrations.connectGoogle()),
       createEvent: payloadHandler(decodeCreateEvent, (input) => workIntegrations.createEvent(input)),
       disconnect: payloadHandler(decodeSource, (source) => workIntegrations.disconnect(source)),
+      openUrl: payloadHandler(decodeHttpsUrl, (url) => workIntegrations.openUrl(url)),
     },
   };
 }

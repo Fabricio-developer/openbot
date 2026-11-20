@@ -108,6 +108,7 @@ export function WorkspacePageRail(props: { hidden: boolean }) {
         setSkillsMarketplaceOpen(true);
       }}
       onAgents={() => showSidebarView("agents")}
+      onDashboard={windowPage.openDashboard}
       onRoutines={() => showSidebarView("routines")}
       onWorkflows={() => windowPage.openWorkflows(null)}
       onPreloadWorkflows={() => void WorkflowsPage.preload()}

@@ -8,6 +8,7 @@ import { useUsage } from "../usage/usage-context";
 
 export type WindowPage =
   | "agents"
+  | "dashboard"
   | "tasks"
   | "schedule"
   | "workflows"
@@ -156,6 +157,11 @@ const context = createSimpleContext({
         leavePricing();
         const serverId = activeServerId();
         if (serverId) usage.openTasks(serverId, source);
+      },
+      openDashboard(source: HTMLElement | null) {
+        leavePricing();
+        const serverId = activeServerId();
+        if (serverId) usage.openDashboard(serverId, source);
       },
       openSchedule(source: HTMLElement | null) {
         leavePricing();

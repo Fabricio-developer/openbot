@@ -1076,6 +1076,7 @@ const openbotApi: OpenBotDesktopApi = {
     connectGoogle: decodeWorkIntegrationsStatus,
     createEvent: decodeWorkCalendarEvent,
     disconnect: decodeWorkIntegrationsStatus,
+    openUrl: decodeVoid,
   }),
   bitwardenConnector: bridgeGroup(IPC_ENDPOINTS.bitwardenConnector, {
     status: decodeBitwardenConnectorStatus,

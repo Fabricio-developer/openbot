@@ -6,6 +6,7 @@ import { SchedulePanel } from "../schedule/SchedulePanel";
 import { useServers } from "../servers/servers-context";
 import { UsageMachine } from "../usage/UsageMachine";
 import { useUsage } from "../usage/usage-context";
+import { DashboardPage } from "../work/DashboardPage";
 import { SettingsPage } from "./SettingsPage";
 import { type SettingsKind, useWindowPage } from "./window-page-context";
 
@@ -48,6 +49,9 @@ export function WindowPageView() {
               </Loading>
             }
           >
+            <Match when={usage.state.view === "dashboard"}>
+              <DashboardPage serverId={serverId()} hostName={hostName(serverId())} onBack={usage.closeUsage} />
+            </Match>
             <Match when={usage.state.view === "schedule"}>
               <SchedulePanel serverId={serverId()} hostName={hostName(serverId())} onBack={usage.closeUsage} />
             </Match>

@@ -52,6 +52,7 @@ import { createTurnSteps } from "../conversation/turn-steps";
 import { useTurnTrace } from "../conversation/turn-trace";
 import { createPageHeaderFrame } from "../window/page-header-frame";
 import type { TaskEvent, TasksSource } from "./tasks-port";
+import { WorkHub } from "../work/WorkHub";
 
 const UNDO_MS = 6_000;
 const TASK_AGENT_STORAGE_KEY = "openbot:task-agent:v1";
@@ -856,6 +857,16 @@ export function TasksView(props: TasksViewProps) {
       }}
       draft={state.draft}
       onDraftChange={voiceControls.setDraft}
+      work={
+        <WorkHub
+          onSendToAgent={(text) => {
+            voiceControls.setDraft(text);
+            setState((draft) => {
+              draft.focusRequest += 1;
+            });
+          }}
+        />
+      }
       files={filesOf(START_FILES)}
       rowFiles={rowFilesOf(START_FILES)}
       pendingImages={pendingImagesOf(START_FILES)}

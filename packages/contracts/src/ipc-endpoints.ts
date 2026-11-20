@@ -1284,6 +1284,7 @@ export const IPC_ENDPOINTS = {
     connectGoogle: request<undefined, WorkIntegrationsStatus>()("work-integrations:connect-google"),
     createEvent: request<WorkCreateEventInput, WorkCalendarEvent>()("work-integrations:create-event"),
     disconnect: request<WorkDisconnectInput, WorkIntegrationsStatus>()("work-integrations:disconnect"),
+    openUrl: request<string, void>()("work-integrations:open-url"),
   },
   bitwardenConnector: {
     status: request<undefined, BitwardenConnectorStatus>()("bitwarden-connector:status"),

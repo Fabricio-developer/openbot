@@ -1694,6 +1694,29 @@ export function createMockOpenBot(options: MockOpenBotOptions = {}): MockOpenBot
     linkAccount: createMockLinkAccount(),
     onePasswordConnector: createMockOnePasswordConnector(),
     bitwardenConnector: createMockBitwardenConnector(),
+    workIntegrations: (() => {
+      const status = {
+        plane: { connected: false, detail: [], error: null },
+        notion: { connected: false, detail: [], error: null },
+        google: { connected: false, detail: [], error: null, canConnect: false },
+        importable: [],
+      };
+      const snapshot = { status, items: [], events: [], fetchedAt: null, errors: [] };
+      return {
+        status: async () => clone(status),
+        importLocal: async () => clone(status),
+        refresh: async () => clone(snapshot),
+        setStatus: async () => {
+          throw new Error("No work items in the preview.");
+        },
+        connectGoogle: async () => clone(status),
+        createEvent: async () => {
+          throw new Error("No calendar in the preview.");
+        },
+        disconnect: async () => clone(status),
+        openUrl: async () => {},
+      };
+    })(),
     passwordManagers: createMockPasswordManagers(),
     vault: createMockVault(),
     billing: createMockBilling(billingPlans),
