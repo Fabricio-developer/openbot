@@ -96,6 +96,10 @@ import {
   type ServerScope,
   type ServerSummary,
   type Untyped,
+  decodeWorkCalendarEvent,
+  decodeWorkIntegrationsStatus,
+  decodeWorkItem,
+  decodeWorkSnapshot,
 } from "@openbot/contracts/ipc";
 import {
   decodeAgentWebhookSecret,
@@ -1063,6 +1067,15 @@ const openbotApi: OpenBotDesktopApi = {
     hostCancel: decodePasswordManagerResponse,
     hostDisconnect: decodePasswordManagerResponse,
     hostOpenSignIn: decodeVoid,
+  }),
+  workIntegrations: bridgeGroup(IPC_ENDPOINTS.workIntegrations, {
+    status: decodeWorkIntegrationsStatus,
+    importLocal: decodeWorkIntegrationsStatus,
+    refresh: decodeWorkSnapshot,
+    setStatus: decodeWorkItem,
+    connectGoogle: decodeWorkIntegrationsStatus,
+    createEvent: decodeWorkCalendarEvent,
+    disconnect: decodeWorkIntegrationsStatus,
   }),
   bitwardenConnector: bridgeGroup(IPC_ENDPOINTS.bitwardenConnector, {
     status: decodeBitwardenConnectorStatus,

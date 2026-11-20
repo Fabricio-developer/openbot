@@ -171,6 +171,7 @@ import { listBackgroundProcesses, stopBackgroundProcess } from "./background-pro
 import { BillingDesktopService } from "./billing-service";
 import { managedBitwardenCli } from "./bitwarden-cli-installer";
 import { BitwardenConnectorService } from "./bitwarden-connector-service";
+import { WorkIntegrationsService } from "./work-integrations-service";
 import { BitwardenConnectorStore } from "./bitwarden-connector-store";
 import { BrowserDockOverlay } from "./browser-dock-overlay";
 import { BrowserEgressClient } from "./browser-egress-client";
@@ -584,6 +585,7 @@ const TEARDOWN_ORDER = {
   mcpOAuthRedirect: 105,
   onePasswordConnector: 106,
   bitwardenConnector: 106.5,
+  workIntegrations: 106.6,
   passwordManagers: 106.75,
   githubConnector: 107,
   linkAccount: 107.5,
@@ -648,6 +650,7 @@ export interface ApplicationServices {
   linkAccount: LinkAccountService;
   onePasswordConnector: OnePasswordConnectorService;
   bitwardenConnector: BitwardenConnectorService;
+  workIntegrations: WorkIntegrationsService;
   passwordManagers: PasswordManagersService;
   vault: VaultService;
   mailbox: MailboxStore;
@@ -1725,6 +1728,14 @@ export async function createApplicationServices({
   teardown.push(TEARDOWN_ORDER.bitwardenConnector, "the Bitwarden connection", async () => {
     await runCauseEffect(bitwardenConnector.dispose());
   });
+  const workIntegrations = new WorkIntegrationsService({
+    userData: app.getPath("userData"),
+    cipher: secretCipher,
+    openExternal: (url) => void shell.openExternal(url),
+  });
+  await workIntegrations.load();
+  void workIntegrations.refresh().catch(() => {});
+  teardown.push(TEARDOWN_ORDER.workIntegrations, "the work integrations", () => workIntegrations.dispose());
 
   const vault = new VaultService({
     store: new VaultStore(join(app.getPath("userData"), VAULT_FILE), secretCipher),
@@ -4115,6 +4126,7 @@ export async function createApplicationServices({
     linkAccount,
     onePasswordConnector,
     bitwardenConnector,
+    workIntegrations,
     passwordManagers,
     vault,
     mailbox,

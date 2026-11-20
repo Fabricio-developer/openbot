@@ -295,3 +295,62 @@
     transition: none;
   }
 }
+
+/* Fork: message images stay small; a click opens the lightbox. */
+.message-image-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--openbot-space-1-5, 6px);
+  margin: var(--openbot-space-2, 8px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message-image-thumb-item {
+  display: block;
+}
+
+.ui-button.message-image-thumb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  overflow: hidden;
+  border: 1px solid var(--openbot-border);
+  border-radius: var(--openbot-radius-lg);
+  background: var(--openbot-bg-control);
+  padding: 0;
+  cursor: zoom-in;
+}
+
+.message-image-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--openbot-duration-fast, 150ms) var(--openbot-ease-out, ease-out);
+}
+
+.message-image-thumb-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.ui-button.message-image-thumb-missing {
+  cursor: default;
+  color: var(--openbot-text-muted);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .message-image-thumb:not(:disabled):hover img {
+    transform: scale(1.04);
+  }
+}
+
+.ui-dialog-overlay.image-lightbox-backdrop {
+  background: rgb(0 0 0 / 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}

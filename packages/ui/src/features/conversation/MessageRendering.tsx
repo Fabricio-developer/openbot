@@ -56,7 +56,7 @@ import { createSmoothHeightResize } from "./createSmoothHeightResize";
 import { DataTable, type MessageContentBlock, messageContentBlocks, reuseUnchangedBlocks } from "./DataTable";
 import { messageFileReferences } from "./FileReference";
 import { ImageGeneration } from "./ImageGeneration";
-import { ImageGallery, ImageLightbox, type ImageLightboxOpening, isLightboxImage } from "./ImageLightbox";
+import { ImageLightbox, type ImageLightboxOpening, isLightboxImage, MessageImageThumbs } from "./ImageLightbox";
 import {
   MarkdownInlineText,
   MarkdownMessageText,
@@ -610,29 +610,9 @@ export function MessageBody(props: {
   );
 
   const imageBlock = () => (
-    <Switch>
-      <Match when={standaloneImageAttachments().length > 1}>
-        <ImageGallery images={standaloneImageAttachments()} onOpen={openAttachment} onDownload={props.onDownload} />
-      </Match>
-      <Match when={standaloneImageAttachments().length === 1}>
-        <div class="message-image-attachments">
-          <For each={standaloneImageAttachments()} keyed={false}>
-            {(attachment) => (
-              <ImageGeneration
-                presentation="attachment"
-                status="completed"
-                prompt={attachment().name}
-                aspectRatio="square"
-                attachment={attachment()}
-                loading={!attachment().previewUrl}
-                onPreview={openAttachment}
-                onDownload={props.onDownload}
-              />
-            )}
-          </For>
-        </div>
-      </Match>
-    </Switch>
+    <Show when={standaloneImageAttachments().length > 0}>
+      <MessageImageThumbs images={standaloneImageAttachments()} onOpen={openAttachment} onDownload={props.onDownload} />
+    </Show>
   );
   const lightboxBlock = () => (
     <Show when={lightbox()}>
@@ -820,26 +800,13 @@ export function MessageBody(props: {
         )}
       </Show>
       {withImages ? imageBlock() : undefined}
-      <Switch>
-        <Match when={fileImages().length > 1}>
-          <ImageGallery images={fileImages()} onOpen={openAttachment} />
-        </Match>
-        <Match when={fileImages()[0]}>
-          {(image) => (
-            <div class="message-image-attachments">
-              <ImageGeneration
-                presentation="attachment"
-                status="completed"
-                prompt={image().name}
-                aspectRatio="square"
-                attachment={image()}
-                onPreview={openAttachment}
-                onDownload={props.onDownloadImageFile ? downloadImage : undefined}
-              />
-            </div>
-          )}
-        </Match>
-      </Switch>
+      <Show when={fileImages().length > 0}>
+        <MessageImageThumbs
+          images={fileImages()}
+          onOpen={openAttachment}
+          onDownload={props.onDownloadImageFile ? downloadImage : undefined}
+        />
+      </Show>
       <Show when={standaloneFileAttachments().length > 0}>
         <div class="message-attachments-group">
           <AttachmentCards

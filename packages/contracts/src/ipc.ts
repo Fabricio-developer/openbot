@@ -101,6 +101,7 @@ export * from "./ipc-storage";
 export * from "./ipc-team-host";
 export * from "./ipc-vault";
 export * from "./ipc-voice";
+export * from "./ipc-work-integrations";
 export * from "./ipc-workflow-discord";
 export * from "./ipc-workflow-github";
 export * from "./ipc-workflow-slack";

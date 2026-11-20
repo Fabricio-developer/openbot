@@ -187,6 +187,69 @@ export function ImageGallery(props: {
   );
 }
 
+/** Message images as small square thumbnails in a row; a click opens the lightbox over a dimmed backdrop. */
+export function MessageImageThumbs(props: {
+  images: AttachmentSummary[];
+  onOpen: (attachment: AttachmentSummary, origin: HTMLElement) => void;
+  onDownload?: ((attachment: AttachmentSummary) => void) | undefined;
+}) {
+  const { t } = useText();
+  return (
+    <ul class="message-image-thumbs" aria-label={t("chat.image.gallery", { count: props.images.length })}>
+      <For each={props.images} keyed={false}>
+        {(image) => {
+          const url = createSteadyImageUrl(() => image().previewUrl);
+          const [loaded, setLoaded] = createSignal(false);
+          const [missing, setMissing] = createSignal(false);
+          return (
+            <li class="message-image-thumb-item">
+              <Button
+                variant="ghost"
+                type="button"
+                class={["message-image-thumb", { "message-image-thumb-missing": missing() }]}
+                data-attachment-id={image().id}
+                disabled={missing() && !props.onDownload}
+                title={image().name}
+                aria-label={
+                  !missing()
+                    ? t("chat.image.preview", { name: image().name })
+                    : props.onDownload
+                      ? t("chat.image.download", { name: image().name })
+                      : t("chat.image.unavailable")
+                }
+                onClick={(event) => {
+                  if (!missing() && url()) props.onOpen(image(), event.currentTarget);
+                  else props.onDownload?.(image());
+                }}
+              >
+                <Show when={!missing()} fallback={props.onDownload ? <DownloadIcon /> : <X aria-hidden="true" />}>
+                  <Show when={!loaded()}>
+                    <span class="message-image-thumb-loading">
+                      <Spinner />
+                    </span>
+                  </Show>
+                  <Show when={url()}>
+                    {(src) => (
+                      <img
+                        src={src()}
+                        alt=""
+                        decoding="async"
+                        draggable={false}
+                        onLoad={() => setLoaded(true)}
+                        onError={() => setMissing(true)}
+                      />
+                    )}
+                  </Show>
+                </Show>
+              </Button>
+            </li>
+          );
+        }}
+      </For>
+    </ul>
+  );
+}
+
 function visibleRect(element: HTMLElement | undefined): DOMRect | undefined {
   if (!element?.isConnected) return undefined;
   const rect = element.getBoundingClientRect();

@@ -628,6 +628,16 @@ import type {
   VoiceTranscriptionResult,
 } from "./ipc-voice";
 import type {
+  WorkCalendarEvent,
+  WorkCreateEventInput,
+  WorkDisconnectInput,
+  WorkIntegrationsStatus,
+  WorkItem,
+  WorkRefreshInput,
+  WorkSetStatusInput,
+  WorkSnapshot,
+} from "./ipc-work-integrations";
+import type {
   WorkflowGitHubCatalog,
   WorkflowGitHubHistory,
   WorkflowGitHubLastEventInput,
@@ -1265,6 +1275,15 @@ export const IPC_ENDPOINTS = {
     hostRepositories: scopedQuery<GitHubConnectorRepositories, "required">()("github-connector:host-repositories"),
     hostOpenVerification: scopedQuery<void, "required">()("github-connector:host-open-verification"),
     hostOpenInstall: scopedQuery<void, "required">()("github-connector:host-open-install"),
+  },
+  workIntegrations: {
+    status: request<undefined, WorkIntegrationsStatus>()("work-integrations:status"),
+    importLocal: request<undefined, WorkIntegrationsStatus>()("work-integrations:import-local"),
+    refresh: request<WorkRefreshInput | undefined, WorkSnapshot>()("work-integrations:refresh"),
+    setStatus: request<WorkSetStatusInput, WorkItem>()("work-integrations:set-status"),
+    connectGoogle: request<undefined, WorkIntegrationsStatus>()("work-integrations:connect-google"),
+    createEvent: request<WorkCreateEventInput, WorkCalendarEvent>()("work-integrations:create-event"),
+    disconnect: request<WorkDisconnectInput, WorkIntegrationsStatus>()("work-integrations:disconnect"),
   },
   bitwardenConnector: {
     status: request<undefined, BitwardenConnectorStatus>()("bitwarden-connector:status"),
@@ -1995,6 +2014,7 @@ export const IPC_GROUP_PATHS = {
   githubConnector: "githubConnector",
   onePasswordConnector: "onePasswordConnector",
   bitwardenConnector: "bitwardenConnector",
+  workIntegrations: "workIntegrations",
   passwordManagers: "passwordManagers",
   linkAccount: "linkAccount",
   vault: "vault",
