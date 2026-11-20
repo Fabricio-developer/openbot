@@ -141,8 +141,11 @@ export class AgentThreadStore {
     return databaseRows(
       this.#database.connection
         .prepare(
-          `SELECT agent_id, thread_id FROM projection_agent_threads
-           WHERE archived_at IS NULL ORDER BY updated_at DESC, thread_id`,
+          `SELECT agent_id, thread_id FROM (
+             SELECT agent_id, thread_id, updated_at FROM projection_agent_threads WHERE archived_at IS NULL
+             UNION ALL
+             SELECT agent_id, thread_id, NULL AS updated_at FROM projection_channel_contexts
+           ) ORDER BY updated_at DESC, thread_id`,
         )
         .all(),
     ).map((row) => ({ id: requiredStringColumn(row, "agent_id"), threadId: requiredStringColumn(row, "thread_id") }));

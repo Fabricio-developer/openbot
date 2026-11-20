@@ -60,7 +60,24 @@ function DesktopChannelConversation(props: { channelId: string; account: () => C
     generalSettings,
   } = useSettings();
   const { agentStatus, agentList, updateAgent, setAgentAvatar, userPausedAgentIds } = useAgents();
-  const { approvals, pendingPrompts, usageLimits } = useTurns();
+  const { approvals, pendingPrompts, usageLimits, threadContextStates } = useTurns();
+  const groupContextState = createMemo(() => {
+    const states = threadContextStates();
+    const threads = channels.state.channels.find((channel) => channel.id === props.channelId)?.threads ?? [];
+    let fullest: (typeof states)[string] | undefined;
+    let fullestShare = -1;
+    for (const thread of threads) {
+      const state = states[thread.threadId];
+      const usage = state?.usage;
+      if (!usage) continue;
+      const share = usage.windowTokens > 0 ? usage.usedTokens / usage.windowTokens : 0;
+      if (share > fullestShare) {
+        fullest = state;
+        fullestShare = share;
+      }
+    }
+    return fullest;
+  });
   const {
     browserTabs,
     activeBrowserTabId,
@@ -128,6 +145,7 @@ function DesktopChannelConversation(props: { channelId: string; account: () => C
   return (
     <Conversation
       channel={view.source}
+      contextState={groupContextState()}
       notice={<ChannelErrorNotice />}
       platform={platform.appInfo()?.platform}
       connectors={connectors.active}
