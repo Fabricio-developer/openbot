@@ -59,6 +59,7 @@ import {
 import type { ConversationMessagePins, SendMessageResult } from "./conversation-types";
 import { useDirectMessages } from "./direct-messages-context";
 import { noteAgentMessageSent } from "./github-star-prompt";
+import { takeQueuedSend } from "./queued-send-intent";
 import { noteSocialFollowMessageSent } from "./social-follow-prompt";
 
 type ConversationDeltaEvent = Extract<AgentEvent, { type: "conversation-delta" }>;
@@ -998,6 +999,7 @@ const Conversation = createSimpleContext({
           ...(replyToMessageId ? { replyToMessageId } : {}),
           ...(clientMessageId ? { clientMessageId } : {}),
           ...(voiceRecordingDraftId ? { voiceRecordingDraftId } : {}),
+          ...(takeQueuedSend(clientMessageId) ? { queue: true } : {}),
         };
         noteAgentRequest(serverId, agentId);
         const receipt = await conversationPort().agent.sendMessage(input, serverId);

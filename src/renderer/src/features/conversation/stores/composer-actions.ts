@@ -40,6 +40,7 @@ import {
 import { composerDraftKey } from "../conversation-keys";
 import { conversationRuntime } from "../conversation-runtime";
 import type { ComposerDraft, ConversationProps, ConversationTarget } from "../conversation-types";
+import { markQueuedSend } from "../queued-send-intent";
 import { conversationOwnerId } from "./composer-store";
 import type { PendingSend, PendingSendStore } from "./pending-send-store";
 
@@ -784,6 +785,7 @@ export function createComposerActions(deps: ComposerActionsDeps) {
     submittedSnapshot?: ComposerDraft,
     voice?: VoiceSend,
     steer = false,
+    forceQueue = false,
   ): Promise<boolean> {
     if (deps.attachmentBusy(targetOverride)) return false;
     if (!draftOverride && deps.currentEditingDeliveryId()) {
@@ -820,7 +822,7 @@ export function createComposerActions(deps: ComposerActionsDeps) {
     stopTeamTyping();
     deps.setComposerError(null, target);
     deps.clearConversationError(target);
-    queueSend(target, draft, text, voice, steer);
+    queueSend(target, draft, text, voice, steer && !forceQueue, forceQueue);
     deps.clearSubmittedDraft(target, submittedSnapshot ?? draft);
     return true;
   }
@@ -831,6 +833,7 @@ export function createComposerActions(deps: ComposerActionsDeps) {
     text: string,
     voice?: VoiceSend,
     steer = false,
+    forceQueue = false,
   ): void {
     const onScreen = () => {
       const activeTarget = deps.currentTarget();
@@ -840,7 +843,7 @@ export function createComposerActions(deps: ComposerActionsDeps) {
     const queued =
       onScreen() &&
       !deps.props.channel &&
-      !hostSteers() &&
+      (forceQueue || !hostSteers()) &&
       (Boolean(deps.props.activeTurnId) ||
         deps.orderedQueuedDeliveries().length > 0 ||
         deps.pendingSends.list(target).some((send) => send.state !== "failed"));
@@ -856,6 +859,7 @@ export function createComposerActions(deps: ComposerActionsDeps) {
     const dictatedSent = claimDictatedSend(target);
     deps.pendingSends.add(target, { draft, text, retrySafe, voiceRecordingDraftId, queued }, async (pending) => {
       rememberAttachmentKinds(pending.draft.attachments);
+      if (forceQueue) markQueuedSend(pending.clientMessageId);
       const result = await send(
         pending.text,
         pending.draft.attachments.map((item) => item.id),
@@ -956,6 +960,12 @@ export function createComposerActions(deps: ComposerActionsDeps) {
     return agentSteers() && (deps.props.agent?.busyMessageMode ?? deps.props.defaultBusyMessageMode) === "steer";
   }
 
+  function queueComposer(): void {
+    if (deps.attachmentBusy() || deps.uploadFailed() || deps.voicePhase() !== "idle" || !deps.agentReady()) return;
+    if (deps.currentEditingDeliveryId()) return;
+    void submitMessage(undefined, undefined, undefined, undefined, false, true);
+  }
+
   function steerComposer(): void {
     if (deps.attachmentBusy() || deps.uploadFailed() || deps.voicePhase() !== "idle" || !deps.agentReady()) return;
     void submitMessage(undefined, undefined, undefined, undefined, !hostSteers());
@@ -1004,6 +1014,7 @@ export function createComposerActions(deps: ComposerActionsDeps) {
     submitMessage,
     submitComposer,
     steerComposer,
+    queueComposer,
     composerAnswersPrompt,
     sendSelectionInstruction,
     sendCardMessage,

@@ -600,6 +600,7 @@ export function parseSendMessage(value: unknown): SendMessageInput {
     ...(clientMessageId === undefined ? {} : { clientMessageId }),
     ...(taskId === undefined ? {} : { taskId }),
     ...(voiceRecordingDraftId === undefined ? {} : { voiceRecordingDraftId }),
+    ...(value.queue === true ? { queue: true } : {}),
   };
 }
 

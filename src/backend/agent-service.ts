@@ -6375,15 +6375,18 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
     });
     const steerFirst = providerForAgent(agent) === "claude";
     if (!steerFirst) yield* releaseQuestions;
-    yield* this.#steerWhenBusy(
-      agent,
-      task,
-      snapshot,
-      delivery.delivery.id,
-      true,
-      false,
-      steerFirst ? releaseQuestions : Effect.void,
-    );
+    if (input.queue) {
+      if (steerFirst) yield* releaseQuestions;
+    } else
+      yield* this.#steerWhenBusy(
+        agent,
+        task,
+        snapshot,
+        delivery.delivery.id,
+        true,
+        false,
+        steerFirst ? releaseQuestions : Effect.void,
+      );
     if (!task) {
       this.#emit({ type: "agents-changed", agents: this.listAgents() });
       this.#conversation.emitConversation(snapshot);

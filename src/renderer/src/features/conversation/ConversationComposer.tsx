@@ -123,6 +123,7 @@ export function ConversationComposer() {
     cancelVoiceRecording,
     submitComposer,
     steerComposer,
+    queueComposer,
     composerAnswersPrompt,
     submitting,
     rowDraftAttachments,
@@ -813,6 +814,7 @@ export function ConversationComposer() {
               }}
               onSubmit={submitComposer}
               onSteer={steerOnTab()}
+              onQueue={channel || editingDeliveryId() ? undefined : queueComposer}
               sendShortcut={deviceSendShortcut(props.platform)}
               dictation={{ text: voiceLiveText(), final: voicePhase() === "transcribing" }}
               onPasteFiles={(files, selection, text) => pasteFiles(files, selection, undefined, text)}

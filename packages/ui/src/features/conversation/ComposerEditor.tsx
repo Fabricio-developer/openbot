@@ -115,6 +115,8 @@ interface ComposerEditorProps {
   onValueChange: (value: string) => void;
   onSubmit: () => void;
   onSteer?: (() => void) | undefined;
+  /** Cmd/Ctrl+Return: wait for the running reply to end, then send. Only when Return alone sends. */
+  onQueue?: (() => void) | undefined;
   sendShortcut?: SendShortcut | undefined;
   onOpenAttachment?: ((attachment: DraftAttachment) => void) | undefined;
   onPasteFiles?:
@@ -944,6 +946,17 @@ export function ComposerEditor(props: ComposerEditorProps) {
       insertLineBreak(editor);
       emitValue();
       updateMention();
+      return;
+    }
+    if (
+      event.key === "Enter" &&
+      sendShortcut === "enter" &&
+      props.onQueue &&
+      (event.metaKey || event.ctrlKey) &&
+      !event.altKey
+    ) {
+      event.preventDefault();
+      props.onQueue();
       return;
     }
     if (event.key === "Enter") {

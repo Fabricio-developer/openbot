@@ -2119,8 +2119,12 @@ export class OpenBotToolRouter {
       return openBotToolFailure(
         "This run reported that the task could not be done. A failure is not a stop condition, so this routine stays on. Give your answer as usual.",
       );
-    const routineResult = yield* this.#routines.handleTool(params, senderAgentId, () =>
-      this.#requestedByPerson(senderAgentId, params.turnId, executionThreadId),
+    const routineResult = yield* this.#routines.handleTool(
+      params,
+      senderAgentId,
+      () =>
+        this.#requestedByPerson(senderAgentId, params.turnId, executionThreadId) ||
+        this.#requestedByPersonInChannel(senderAgentId, params.turnId, executionThreadId),
     );
     const pausedRoutine =
       runPause !== null && routineResult?.success
@@ -2172,7 +2176,8 @@ export class OpenBotToolRouter {
 
     if (
       WORKFLOW_CHANGE_TOOL_NAMES.has(params.tool) &&
-      !this.#requestedByPerson(senderAgentId, params.turnId, executionThreadId)
+      !this.#requestedByPerson(senderAgentId, params.turnId, executionThreadId) &&
+      !this.#requestedByPersonInChannel(senderAgentId, params.turnId, executionThreadId)
     )
       return openBotToolFailure(
         this.#fromRemoteMember(senderAgentId, params.turnId)
@@ -2835,6 +2840,18 @@ export class OpenBotToolRouter {
         (this.#tasks.isPersonThread(agentId, executionThreadId) &&
           !this.#messaging.store.linkForThread(executionThreadId) &&
           !this.#channels.store.channelForThread(executionThreadId)))
+    );
+  }
+
+  /** Custom fork: a channel task that a local person's own message started may change and run workflows. Routine runs, webhooks, agent-to-agent handoffs, remote members and external chats stay blocked. */
+  #requestedByPersonInChannel(agentId: string, turnId: string, threadId: string): boolean {
+    const executionThreadId = this.#conversation.publicThreadId(agentId, threadId);
+    if (!this.#channels.store.channelForThread(executionThreadId)) return false;
+    if (this.#messaging.store.linkForThread(executionThreadId)) return false;
+    const deliveries = this.#mailbox.findDeliveriesByTurn(agentId, turnId);
+    return (
+      deliveries.length > 0 &&
+      deliveries.every(({ delivery }) => delivery.sender.kind === "user" && !this.#remoteMember(delivery.messageId))
     );
   }
 

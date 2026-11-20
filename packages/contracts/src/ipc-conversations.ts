@@ -155,6 +155,8 @@ export interface SendMessageInput {
   clientMessageId?: string;
   taskId?: string;
   voiceRecordingDraftId?: string;
+  /** Wait for the running turn to end instead of steering it, whatever the busy message mode says. */
+  queue?: boolean;
 }
 
 export interface DeleteConversationMessageInput {
