@@ -193,6 +193,8 @@ export type ChannelCommand =
       recipientAgentId: string | null;
       replyToMessageId: string | null;
       attachmentDraftIds: string[];
+      /** Wait for the running reply instead of joining it (Cmd/Ctrl+Return). */
+      queue?: boolean;
     }
   | {
       type: "request";
@@ -511,6 +513,7 @@ export function parseChannelCommand(value: unknown): ChannelCommand {
       recipientAgentId: value.recipientAgentId,
       replyToMessageId: value.replyToMessageId,
       attachmentDraftIds: value.attachmentDraftIds,
+      ...(value.queue === true ? { queue: true } : {}),
     };
   }
   if (

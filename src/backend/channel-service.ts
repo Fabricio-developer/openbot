@@ -738,14 +738,15 @@ export class ChannelService {
             ? recipients.every((agentId) => agentId === running)
             : current.leadAgentId === running || eligible.every((agentId) => agentId === running));
         const continues =
-          (!referenced &&
+          command.queue !== true &&
+          ((!referenced &&
             !committed &&
             addressed &&
             running !== null &&
             this.hooks.steersWhenBusy?.(running) === true) ||
-          /^(?:also|instead|actually|please change|change that|correction|continue|resume|go on|keep going|yes|no|use that|make it)\b/iu.test(
-            text.trim(),
-          );
+            /^(?:also|instead|actually|please change|change that|correction|continue|resume|go on|keep going|yes|no|use that|make it)\b/iu.test(
+              text.trim(),
+            ));
         const roots = open.filter((task) => task.parentTaskId === null);
         const pausedRoots = roots.filter((task) => task.state === "paused");
         const openRoots = pausedRoots.length ? pausedRoots : roots;

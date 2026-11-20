@@ -814,7 +814,7 @@ export function ConversationComposer() {
               }}
               onSubmit={submitComposer}
               onSteer={steerOnTab()}
-              onQueue={channel || editingDeliveryId() ? undefined : queueComposer}
+              onQueue={editingDeliveryId() ? undefined : queueComposer}
               sendShortcut={deviceSendShortcut(props.platform)}
               dictation={{ text: voiceLiveText(), final: voicePhase() === "transcribing" }}
               onPasteFiles={(files, selection, text) => pasteFiles(files, selection, undefined, text)}

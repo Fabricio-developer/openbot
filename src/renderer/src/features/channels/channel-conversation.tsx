@@ -38,6 +38,7 @@ import {
   sentChannelMessageId,
   waitingChannelPrompt,
 } from "./channel-conversation-rows";
+import { takeQueuedSend } from "../conversation/queued-send-intent";
 import { useChannels } from "./channels-context";
 
 export interface ChannelConversationEnvironment {
@@ -177,6 +178,7 @@ export function createChannelConversation(env: ChannelConversationEnvironment) {
         recipientAgentId: mention?.id ?? null,
         replyToMessageId,
         attachmentDraftIds,
+        ...(takeQueuedSend(clientMessageId) ? { queue: true } : {}),
       });
       const messageId = sentChannelMessageId(after, sequenceBefore, body, env.isOwnSender);
       return messageId ? { messageId } : { error: t("channel.error.action") };
