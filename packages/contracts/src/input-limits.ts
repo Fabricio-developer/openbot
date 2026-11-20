@@ -20,7 +20,7 @@ export const INPUT_LIMITS = {
   storedChannelInstructions: 32_000,
   agentInstructionsFile: 32_000,
   agentMemories: 64,
-  agentSkills: 32,
+  agentSkills: 200,
   sharedTables: 64,
   sharedTableName: 64,
   channelMemories: 32,
