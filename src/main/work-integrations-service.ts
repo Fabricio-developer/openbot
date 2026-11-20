@@ -351,6 +351,7 @@ export class WorkIntegrationsService {
   #errors: Partial<Record<WorkDisconnectInput, string>> = {};
   #googleServer: Server | null = null;
   readonly #planeGate = new RateGate();
+  #found: { plane: boolean; notion: boolean; google: boolean } | null = null;
 
   constructor(options: { userData: string; cipher: SecretCipher; openExternal: (url: string) => void }) {
     this.#path = join(options.userData, WORK_INTEGRATIONS_FILE);
@@ -428,17 +429,26 @@ export class WorkIntegrationsService {
     return status;
   }
 
+  /** Local setups that can be imported; looked up once, since finding busca-vagas walks a few folders. */
   #importable(): string[] {
-    const found: string[] = [];
-    try {
-      const notes = readNotes();
-      if (!this.#record.plane && discoverPlane(notes)) found.push("plane");
-      if (!this.#record.notion?.length && discoverNotion(notes).length > 0) found.push("notion");
-      if (!this.#record.google && discoverGoogle()) found.push("google");
-    } catch (error) {
-      logger.warn("Could not look for local setups:", errorText(error));
+    if (!this.#found) {
+      const found = { plane: false, notion: false, google: false };
+      try {
+        const notes = readNotes();
+        found.plane = discoverPlane(notes) !== null;
+        found.notion = discoverNotion(notes).length > 0;
+        found.google = discoverGoogle() !== null;
+      } catch (error) {
+        logger.warn("Could not look for local setups:", errorText(error));
+      }
+      this.#found = found;
     }
-    return found;
+    const found = this.#found;
+    return [
+      ...(found.plane && !this.#record.plane ? ["plane"] : []),
+      ...(found.notion && !this.#record.notion?.length ? ["notion"] : []),
+      ...(found.google && !this.#record.google ? ["google"] : []),
+    ];
   }
 
   async importLocal(): Promise<WorkIntegrationsStatus> {
